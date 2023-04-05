@@ -8,4 +8,4 @@ file(GLOB HEADERS "src/*.h")
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 target_link_libraries(${PROJECT_NAME} AsioCommon)
 
-target_include_directories(${PROJECT_NAME} PUBLIC ../Common/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ../Common)

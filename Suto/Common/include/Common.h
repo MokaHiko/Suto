@@ -10,4 +10,5 @@
 #include <asio.hpp>
 #include <array>
 #include <functional>
+#include <vector>
 #include <thread>
