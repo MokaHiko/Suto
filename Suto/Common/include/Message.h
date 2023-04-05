@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "Common.h"
+#include "common.h"
 
 namespace sto
 {
@@ -71,6 +71,22 @@ namespace sto
             msg.header.size = msg.size();
 
             return msg;
+        }
+    };
+
+    class connection;
+
+    // Msg wrapper that has handle on connection
+    template<typename T>
+    struct owned_message
+    {
+        std::shared_ptr<connection<T>> remote = nullptr;
+        message<T> msg;
+
+        friend std::ostream& operator<<(std::ostream& os, owned_message& msg)
+        {
+            os << msg.msg;
+            return os;
         }
     };
 }

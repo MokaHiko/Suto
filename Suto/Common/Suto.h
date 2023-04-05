@@ -3,7 +3,8 @@
 
 #pragma once
 
-#include "include/Common.h"
-#include "include/Message.h"
+#include "include/common.h"
+#include "include/message.h"
+#include "include/client.h"
 
 #endif

@@ -1,19 +1,21 @@
-#include "Client.h"
-
 #include "Suto.h"
-
-Client::Client()
-{
-}
-
-Client::~Client()
-{
-}
 
 enum class BasicMsg: uint32_t
 {
 	Ping,
-	EatingAss
+	FireBullet
+};
+
+class CustomClient : sto::client<BasicMsg>
+{
+public:
+	bool FireBullet(float x, float y)
+	{
+		sto::message<BasicMsg> msg;
+		msg.header.id = BasicMsg::FireBullet;
+		msg << x << y;
+		Send(msg);
+	}
 };
 
 int main()

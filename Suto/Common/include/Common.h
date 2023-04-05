@@ -12,3 +12,4 @@
 #include <functional>
 #include <vector>
 #include <thread>
+#include <memory>
