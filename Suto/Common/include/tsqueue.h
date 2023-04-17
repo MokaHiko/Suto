@@ -34,16 +34,25 @@ namespace sto
         {
             std::scoped_lock<std::mutex> lock(muxQueue);
             deqQueue.emplace_back(std::move(item));
+
+            // Enabled on passive run
+            std::scoped_lock<std::mutex> ul(muxBlocking);
+            cvBlocking.notify_one();
+
         }
 
         void push_front(const T& item)
         {
             std::scoped_lock<std::mutex> lock(muxQueue);
             deqQueue.emplace_front(std::move(item));
+
+            // Enabled on passive run
+            std::scoped_lock<std::mutex> ul(muxBlocking);
+            cvBlocking.notify_one();
         }
 
         // clears queue
-        void empty()
+        void clear()
         {
             std::scoped_lock<std::mutex> lock(muxQueue);
             deqQueue.clear();
@@ -57,10 +66,10 @@ namespace sto
         }
 
         // checks if empty
-        bool empty() const
+        bool empty()
         {
             std::scoped_lock<std::mutex> lock(muxQueue);
-            deqQueue.empty();
+            return deqQueue.empty();
         }
 
         T pop_front()
@@ -78,9 +87,23 @@ namespace sto
             deqQueue.pop_back();
             return t;
         }
+
+
+        void wait()
+        {
+            // Enabled on passive run
+            while(empty())
+            {
+                std::unique_lock<std::mutex> ul(muxBlocking);
+                cvBlocking.wait(ul);
+            }
+        }
     protected:
         std::mutex muxQueue;
         std::deque<T> deqQueue;
+
+        std::condition_variable cvBlocking;
+        std::mutex muxBlocking;
     };
 }
 

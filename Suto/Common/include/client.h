@@ -10,39 +10,47 @@
 
 namespace sto
 {
-    template<typename T>
+    // Client handles msg queues by popping msgs from incoming tsqueue
+    template <typename T>
     class client
     {
     public:
         client()
-            :m_socket(m_context)
-        {
+            : m_socket(m_context)
+            {
 
-        };
+            };
+
         ~client()
         {
-            Disconnect();
+            disconnect();
         };
-    public:
 
-        bool Connect(const std::string& host, const uint16_t port)
+    public:
+        bool connect(const std::string &host, const uint16_t port)
         {
             try
             {
-                // Create connection
-                m_connection = std::make_unique<connection<T>>();
-
                 // Resolve ip address and get first endpoint
                 asio::ip::tcp::resolver resolver(m_context);
-                asio::ip::tcp::endpoint endpoint = resolver.resolve(host, std::to_string(port)).begin();
+                auto endpoints = resolver.resolve(host, std::to_string(port));
+            
+
+                // Create connection
+                m_connection = std::make_unique<connection<T>>(
+                    connection<T>::owner::client,
+                    m_context,
+                    asio::ip::tcp::socket(m_context),
+                    m_qMessagesIn);
 
                 // tell connection to connect to endpoint
-                m_connection->ConnectToServer(endpoint);
+                m_connection->connectToServer(endpoints);
 
                 // start asio thread context
-                m_thrContext = std::thread([this](){m_context.run();});
+                m_thrContext = std::thread([this]()
+                                           { m_context.run(); });
             }
-            catch(std::exception& e)
+            catch (std::exception &e)
             {
                 std::cerr << e.what() << std::endl;
                 return false;
@@ -51,36 +59,37 @@ namespace sto
             return true;
         }
 
-        bool IsConnected() const
+        bool isConnected() const
         {
-            if(m_connection)
-                return m_connection->IsConnected();
+            if (m_connection)
+                return m_connection->isConnected();
 
             return false;
         }
 
-        void Disconnect()
+        void disconnect()
         {
-            if(!IsConnected())
+            if (!isConnected())
             {
-                m_connection->Disconnect();
+                m_connection->disconnect();
             }
 
             m_context.stop();
 
-            if(m_thrContext.joinable())
+            if (m_thrContext.joinable())
                 m_thrContext.join();
-            
+
             m_connection.release();
         }
 
     public:
-        void Send(const msg& msg)
+        void send(const message<T> &msg)
         {
-            m_connection->Send(msg);
+            m_connection->send(msg);
         }
+
     public:
-        tsqueue<owned_message<T>>& IncomingMessages()
+        tsqueue<owned_message<T>> &incomingMessages()
         {
             return m_qMessagesIn;
         }
@@ -88,7 +97,6 @@ namespace sto
     private:
         // Thread safe queue of owned messages coming from the server
         tsqueue<owned_message<T>> m_qMessagesIn;
-
 
     private:
         asio::io_context m_context;

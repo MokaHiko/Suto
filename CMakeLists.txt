@@ -7,9 +7,6 @@ enable_testing()
 add_subdirectory(Suto/Common)
 add_subdirectory(Suto/Client)
 add_subdirectory(Suto/Server)
-add_executable(${PROJECT_NAME} main.cpp)
-
-target_link_libraries(${PROJECT_NAME} Server)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

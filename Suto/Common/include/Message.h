@@ -14,7 +14,7 @@ namespace sto
     {
         T id{};
 
-        // Returns size of entire message packet sizeof(Header + Body)
+        // Returns size of body of message packet sizeof(body)
         uint32_t size = 0;
     };
 
@@ -24,10 +24,10 @@ namespace sto
         message_header<T> header{};
         std::vector<uint8_t> body;
 
-        // Returns size of entire message packet sizeof(header + body)
+        // Returns size of body of message packet sizeof(body)
         size_t size() const
         {
-            return sizeof(message_header<T>) + body.size();
+            return body.size();
         }
 
         // Produces friendly description of message
@@ -51,7 +51,7 @@ namespace sto
             memcpy(msg.body.data() + previoussize, &data, sizeof(DataType));
 
             // update header
-            msg.header.size = msg.size();
+            msg.header.size = static_cast<uint32_t>(msg.size());
 
             return msg;
         }
@@ -68,12 +68,14 @@ namespace sto
 
             // resize buffer and update header
             msg.body.resize(newsize);
-            msg.header.size = msg.size();
+            msg.header.size = static_cast<uint32_t>(msg.size());
 
             return msg;
         }
     };
 
+
+    template<typename T>
     class connection;
 
     // Msg wrapper that has handle on connection

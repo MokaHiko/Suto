@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 file(GLOB SOURCES "src/*.cpp")
 file(GLOB HEADERS "src/*.h")
 
-add_library(${PROJECT_NAME} ${SOURCES} ${HEADERS} "Server.h")
+add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 
 target_link_libraries(${PROJECT_NAME} AsioCommon)
 target_include_directories(${PROJECT_NAME} PUBLIC ../Common/include)
